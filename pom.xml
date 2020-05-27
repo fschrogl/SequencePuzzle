@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>at.schrogl.puzzle</groupId>
+    <artifactId>sequence-puzzle</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>SequencePuzzle</name>
+    <description>Little exercise in compressing char sequences</description>
+
+    <properties>
+        <project.source.encoding>UTF-8</project.source.encoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+    </properties>
+
+</project>
