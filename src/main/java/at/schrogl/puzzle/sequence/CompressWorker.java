@@ -14,8 +14,22 @@ public class CompressWorker {
     }
 
     public String compressUsingLoop(String input) {
-        // TODO with loop
-        return null;
+        StringBuilder compressedInput = new StringBuilder();
+
+        char currentChar = input.charAt(0);
+        int compressCounter = 1;
+        for (int i = 1; i < input.length(); i++) {
+            if (currentChar == input.charAt(i)) {
+                compressCounter++;
+            } else {
+                compressedInput.append(currentChar).append(compressCounter);
+                currentChar = input.charAt(i);
+                compressCounter = 1;
+            }
+        }
+        compressedInput.append(currentChar).append(compressCounter);
+
+        return compressedInput.toString();
     }
 
     public String compressUsingStreams(String input) {
