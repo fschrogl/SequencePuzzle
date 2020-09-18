@@ -33,8 +33,27 @@ public class CompressWorker {
     }
 
     public String compressUsingStreams(String input) {
-        // TODO with Java's Stream API
-        return null;
+        return input.trim().chars()
+            .boxed()
+            .reduce(
+                /* The identity method is the starting point and return value if the stream is empty */
+                (input.isBlank()) ? "" : input.charAt(0) + "0",
+                /* Accumulator does the reduction */
+                (partialResult, letterAsInt) -> {
+                    String[] tuples = partialResult.split("\\w\\d+", partialResult.length() / 2);
+                    String lastTuple = (tuples.length == 0) ? tuples[0] : tuples[tuples.length - 1];
+                    if (letterAsInt.intValue() == lastTuple.charAt(0)) {
+                        int newCount = Integer.valueOf(lastTuple.substring(1)) + 1;
+                        return partialResult.substring(0, partialResult.length() - lastTuple.length()) + lastTuple.charAt(0) + newCount;
+                    } else {
+                        return partialResult + ((char) letterAsInt.intValue()) + "1";
+                    }
+                },
+                /*
+                   The combiner is used in parallel streams. This implementation is NOT capable of parallel execution.
+                   Here it is only necessary, so that the compiler is able to infer the type of "partialResult"
+                 */
+                String::join);
     }
 
     public String compressUsingMapReduce(String input) {
