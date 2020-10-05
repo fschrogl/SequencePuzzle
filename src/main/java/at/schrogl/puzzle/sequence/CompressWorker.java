@@ -1,5 +1,12 @@
 package at.schrogl.puzzle.sequence;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.RecursiveTask;
+import java.util.stream.Collectors;
+
 public class CompressWorker {
 
     public void compressAndLogUsingAll(DataTuple tuple) {
@@ -57,8 +64,47 @@ public class CompressWorker {
     }
 
     public String compressUsingMapReduce(String input) {
-        // TODO with Java's MapReduce Framework
-        return null;
+        return ForkJoinPool
+            .commonPool()
+            .invoke(new ForkJoinCompressionTask(input, false));
+
+    }
+
+    private static class ForkJoinCompressionTask extends RecursiveTask<String> {
+
+        private final String inputChunk;
+        private final boolean isFork;
+
+        public ForkJoinCompressionTask(String inputChunck, boolean isFork) {
+            this.inputChunk = inputChunck == null ? "" : inputChunck.trim();
+            this.isFork = isFork;
+        }
+
+        @Override
+        protected String compute() {
+            if (isFork) {
+                return String.format("%c%d", inputChunk.charAt(0), inputChunk.length());
+            } else {
+                List<ForkJoinTask<String>> tasks = new ArrayList<>();
+
+                int startIndex = 0;
+                for (int currentIndex = 1; currentIndex < inputChunk.length(); currentIndex++) {
+                    if (inputChunk.charAt(startIndex) != inputChunk.charAt(currentIndex)) {
+                        tasks.add(
+                            new ForkJoinCompressionTask(inputChunk.substring(startIndex, currentIndex), true).fork()
+                        );
+                        startIndex = currentIndex;
+                    }
+                }
+                tasks.add(
+                    new ForkJoinCompressionTask(inputChunk.substring(startIndex), true).fork()
+                );
+
+                return tasks.stream()
+                    .map(ForkJoinTask::join)
+                    .collect(Collectors.joining());
+            }
+        }
     }
 
 }
